@@ -413,6 +413,9 @@ class BinarySearchTree {
         } else {
             // if it's not empty, print the tree
             printTree(root, null, "", 0);
+        }
+        System.out.print(repr);
+        if(size != 0) {
             line();
             System.out.println("PREORDER TRAVERSAL:");
             preorder();
@@ -423,7 +426,6 @@ class BinarySearchTree {
             System.out.println("POSTORDER TRAVERSAL:");
             postorder();
         }
-        System.out.print(repr);
     }
 }
 
