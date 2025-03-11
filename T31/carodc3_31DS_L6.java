@@ -2,18 +2,9 @@
 // UNIVERSITY OF THE CORDILLERAS, CITCS-1F
 // CC4/DATA STRUCTURES AND ALGORITHMS
 // [31DS-L6] Laboratory Activity 5: AVL Trees
-// 9 March 2025
+// 12 March 2025
 
-// BINARY SEARCH TREE Representation
-// - Accept integer input from the user
-// - Display the 1-D array representation
-// - Display the three tree traversals: Preorder, Inorder, Postorder
-// - Option to try again
-
-// BINARY SEARCH TREE Definition: 
-
-// code from https://www.geeksforgeeks.org/implementing-a-binary-tree-in-java/ and https://www.techiedelight.com/deletion-from-bst/
-// comments by yours truly :3
+// code from https://github.com/BerWalker/AVLTree-Java
 
 // imports...
 import java.util.ArrayList;
