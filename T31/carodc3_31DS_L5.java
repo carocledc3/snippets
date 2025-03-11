@@ -10,12 +10,13 @@
 // - Display the three tree traversals: Preorder, Inorder, Postorder
 // - Option to try again
 
-// BINARY SEARCH TREE Definition: 
+// BINARY SEARCH TREE Definition: A binary tree with the property that traversing leftwards will always return a smaller value, and traversing rightwards will always return a bigger value.
 
 // code from https://www.geeksforgeeks.org/implementing-a-binary-tree-in-java/ and https://www.techiedelight.com/deletion-from-bst/
 // comments by yours truly :3
 
 // imports...
+import java.util.Arrays;
 import java.util.Scanner;
 
 // making node direction from parent a normalised Thing (for the sake of printing)
@@ -67,13 +68,16 @@ class BinarySearchTree {
         System.out.println("---------------------------------------------------------------------");
     }
 
-    Node root; // every tree is defined by its root
-    int selected; // which node is selected (for highlighting in insert & search operations)
-    int size = 0; // number of nodes in the tree
-    String indicesRepr = ""; // representation of indices and elements for 1D traversals
-    String elementsRepr = "";
-    String repr = ""; // representation for tree visualisation
-    String[] lastOperation = {String.format(WHITE_HL, "(none)"), ""}; // last operation done on the tree
+    private Node root; // every tree is defined by its root
+    private int selected; // which node is selected (for highlighting in insert & search operations)
+    private int size = 0; // number of nodes in the tree
+    private int lastIndex = 0;
+    private int depth = 0;
+    private int[] arrayRepr;
+    private String indicesRepr = ""; // representation of indices and elements for 1D traversals
+    private String elementsRepr = "";
+    private String repr = ""; // representation for tree visualisation
+    public String[] lastOperation = {String.format(WHITE_HL, "(none)"), ""}; // last operation done on the tree
 
     // constructor. blank tree by default
     public BinarySearchTree() {
@@ -81,7 +85,7 @@ class BinarySearchTree {
     }
 
     // Insertion operation
-    void insert(int key) {
+    private void insert(int key) {
         root = insertRec(root, key); // do the recursive inserting operation
         lastOperation[0] = "INSERT"; lastOperation[1] = key + ""; // update the last operation done
         updateIndices(); // update the indices
@@ -104,7 +108,7 @@ class BinarySearchTree {
     }
 
     // deleting operation
-    void delete(int key) {
+    private void delete(int key) {
         if(size == 1 && root.key == key) { // if there's only one node in the tree...
             root = null; // delete it
             size = 0; // update the size
@@ -179,7 +183,7 @@ class BinarySearchTree {
     }
 
     // Search operation
-    boolean search(int key) {
+    private boolean search(int key) {
         boolean found = searchRec(root, key); // run the recursive search operation and store the result in this boolean
         // update last operation
         lastOperation[0] = "SEARCH";
@@ -202,14 +206,29 @@ class BinarySearchTree {
         return searchRec(root.left, key); // else, go left
     }
 
+    // Preorder traversal and printing. is called PRE-order because it goes root -> left -> right, with the root BEFORE the instructions to go left and right
+    private void preorder() {
+        elementsRepr = ""; // initialise element text
+        preorderRec(root); // run recursive pre-order traversal function...
+        System.out.println("PREORDER TRAVERSAL: " + String.format("[%s]", elementsRepr)); // and print the results
+    }
+
+    // recursive pre-order traversal function
+    private void preorderRec(Node root) {
+        if (root != null) {
+            // read root first...
+            elementsRepr += root.index == lastIndex ? String.format(RED_HL, root.key) : String.format(RED_HL, root.key + ", ");
+            preorderRec(root.left); // then go left
+            preorderRec(root.right); // then go right
+        }
+    }
 
     // Inorder traversal and printing. is called IN-order because it goes left -> root -> right, with the root IN BETWEEN the instructions to go left and right
-    void inorder() {
-         // initialise indices and elements row labels
-        indicesRepr = String.format("%-10s", "Indices");
-        elementsRepr = String.format(RED_HL, String.format("%-10s", "Elements"));
-        inorderRec(root); // run recursive in-order traversal function...
-        System.out.println(indicesRepr + "\n" + elementsRepr); // and print the results
+    private  void inorder() {
+        // initialise indices and elements row labels
+        elementsRepr = ""; // initialise element text
+        inorderRec(root); // run recursive post-order traversal function...
+        System.out.println("INORDER TRAVERSAL: " + String.format("[%s]", elementsRepr)); // and print the results
     }
 
     // recursive in-order traversal function
@@ -217,39 +236,17 @@ class BinarySearchTree {
         if (root != null) {
             inorderRec(root.left); // go left first...
             // read root...
-            indicesRepr += String.format(WHITE_HL, String.format("%5s", "@ " + root.index)) + " ";
-            elementsRepr += String.format(RED_HL, String.format("%6s", String.format("[%s]", root.key)));
+            elementsRepr += root.index == lastIndex ? String.format(RED_HL, root.key) : String.format(RED_HL, root.key + ", ");
             // then go right
             inorderRec(root.right);
         }
     }
 
-    // Preorder traversal and printing. is called PRE-order because it goes root -> left -> right, with the root BEFORE the instructions to go left and right
-    void preorder() {
-         // initialise indices and elements row labels
-        indicesRepr = String.format("%-10s", "Indices");
-        elementsRepr = String.format(RED_HL, String.format("%-10s", "Elements"));
-        preorderRec(root); // run recursive pre-order traversal function...
-        System.out.println(indicesRepr + "\n" + elementsRepr); // and print the results
-    }
-
-    // recursive pre-order traversal function
-    private void preorderRec(Node root) {
-        if (root != null) {
-            // read root first...
-            indicesRepr += String.format(WHITE_HL, String.format("%5s", "@ " + root.index)) + " ";
-            elementsRepr += String.format(RED_HL, String.format("%6s", String.format("[%s]", root.key)));
-            preorderRec(root.left); // then go left
-            preorderRec(root.right); // then go right
-        }
-    }
-
     // Postorder traversal and printing. is called POST-order because it goes left -> right -> root , with the root AFTER the instructions to go left and right
-    void postorder() {
-         // initialise indices and elements row labels
-        indicesRepr = String.format("%-10s", "Indices"); elementsRepr = String.format(RED_HL, String.format("%-10s", "Elements"));
+    private void postorder() {
+        elementsRepr = ""; // initialise element text
         postorderRec(root); // run recursive post-order traversal function...
-        System.out.println(indicesRepr + "\n" + elementsRepr); // and print the results
+        System.out.println("POSTORDER TRAVERSAL: " + String.format("[%s]", elementsRepr)); // and print the results
     }
 
     // recursive post-order traversal function
@@ -258,14 +255,44 @@ class BinarySearchTree {
             postorderRec(root.left); // go left first...
             postorderRec(root.right); // then go right
             // then read root
-            indicesRepr += String.format(WHITE_HL, String.format("%5s", "@ " + root.index)) + " ";
-            elementsRepr += String.format(RED_HL, String.format("%6s", String.format("[%s]", root.key)));
+            elementsRepr += root.index == 0 ? String.format(RED_HL, root.key) : String.format(RED_HL, root.key + ", ");
         }
     }
 
+    // method to update the 1D array representation
+    private void updateArrayRepresentation() {
+        // what this line does: calculate the (1-indexed) depth of the tree.
+        // 1. get the maximum index + 1
+        // 2. get the log base 2 of it (log_k n = log(n) / log(k))
+        // 3. floor it (best achieved by turning it into an int) then add 1.
+        // et voilà
+        depth = (int)(Math.log(lastIndex + 1) / Math.log(2)) + 1;
+
+        // make a new array with the size 2^depth - 1
+        arrayRepr = new int[(int)(Math.pow(2, depth) - 1)];
+
+        // fill it with 0s to represent blank nodes
+        Arrays.fill(arrayRepr, 0);
+
+        // run the recursive update arrays function
+        updateArrayReprRec(root);
+    }
+
+    private void updateArrayReprRec(Node root) {
+        // preorder-traverses the tree, gets the index of each node, and replaces its corresponding entry in the array representation with the node data
+        if (root != null) {
+            arrayRepr[root.index] = root.key;
+            updateArrayReprRec(root.left);
+            updateArrayReprRec(root.right);
+        }
+    }
+
+    
+
     // (abstraction) method to update the indices of every node in the tree
-    void updateIndices() {
+    private void updateIndices() {
         updateIndicesRec(root, 1, NodeDirection.root);
+        updateArrayRepresentation(); // and update the array representation while you're at it
     }
 
     // method to recursively update the indices
@@ -273,8 +300,9 @@ class BinarySearchTree {
         if(root != null){
             // uses preorder traversal to get all nodes in the tree
 
-            // set the current node's index first
+            // set the current node's index first and update the lastIndex attribute if the current index is greater than the last one
             root.index = i - 1;
+            if(root.index > lastIndex) { lastIndex = root.index; }
 
             // then update its hasSibling and direction attributes
             if(root.index == 0) { root.hasSibling = false; }
@@ -297,7 +325,7 @@ class BinarySearchTree {
     }
 
     // method to clear the whole tree. sets the root to null and the size to zero
-    void clear() { root = null; size = 0; }
+    private void clear() { root = null; size = 0; updateIndices();}
 
     // recursive method to print the whole tree
     private void printTree(Node root, Node previous, String offset, int depth) {
@@ -369,44 +397,67 @@ class BinarySearchTree {
         }
     }
 
-    // Integer.parseInt with an exception silencer. invalid values return -(2^31)
+    // method to print the array representation
+    private void printArrayRepr() {
+        int[] arr = arrayRepr; // making a copy of the current arrayRepr just to be safe
+        // initialise row headers...
+        indicesRepr = String.format("%-10s", "Indices");
+        elementsRepr = String.format(RED_HL, String.format("%-10s", "Elements"));
+        // and fill the representations with the indices and strings
+        for(int k = 0; k < arr.length; k++) {
+            indicesRepr += String.format(WHITE_HL, "@" + String.format("%-5s", k));
+            elementsRepr += String.format(RED_HL, String.format("%-6s", String.format("[%s]", arr[k])));
+        }
+        // do the actual printing
+        System.out.println("1D ARRAY REPRESENTATION: \n" + indicesRepr + "\n" + elementsRepr);
+    }
+
+    // Integer.parseInt with an exception silencer. invalid values return 0
     @SuppressWarnings("UseSpecificCatch")
-    static int intParse(String input) { try { return Integer.parseInt(input); } catch (Exception e) { return Integer.MIN_VALUE; } }
+    private int intParse(String input) { try { return Integer.parseInt(input); } catch (Exception e) { return 0; } }
 
     // command processor to process inputs
     public void processCommand(String inp){
-        // anything after a space will be ignored
-        String command = inp.split("\s+")[0];
+        // commands separated by spaces
+        String[] commands = inp.split("\s+");
 
-        if(command.startsWith("+")) {
-            // if the command starts with a +, add a new node with the key being the number following (ignoring if the input isn't an int)
-            Integer query = intParse(command.replace("+", ""));
-            if(query != Integer.MIN_VALUE) { insert(query); }
-        } else if(command.startsWith("!")) {
-            // if the command starts with a !, delete the node with the key being the number following (ignoring if the input isn't an int)
-            Integer query = intParse(command.replace("!", ""));
-            if(query != Integer.MIN_VALUE) { delete(query); }
-        } else if(command.startsWith("?")) {
-            // if the command starts with a ?, search for the node with the key being the number following (ignoring if the input isn't an int)
-            Integer query = intParse(command.replace("?", ""));
-            if(query != Integer.MIN_VALUE) {
-                search(query);
+        for(String command : commands) {
+            if(command.startsWith("+")) {
+                // if the command starts with a +, add a new node with the key being the number following (ignoring if the input isn't an int)
+                Integer query = intParse(command.replace("+", ""));
+                if(query != 0) { insert(query); }
+            } else if(command.startsWith("!")) {
+                // if the command starts with a !, delete the node with the key being the number following (ignoring if the input isn't an int)
+                Integer query = intParse(command.replace("!", ""));
+                if(query != 0) { delete(query); }
+            } else if(command.startsWith("?")) {
+                // if the command starts with a ?, search for the node with the key being the number following (ignoring if the input isn't an int)
+                Integer query = intParse(command.replace("?", ""));
+                if(query != 0) {
+                    search(query);
+                }
+            } else if(command.toLowerCase().equals("clear")) {
+                // if the command is "clear" (case-insensitive), clear the tree
+                clear();
+                lastOperation[0] = "CLEAR TREE"; // update last operation
+                lastOperation[1] = "";
+            } else if(command.toLowerCase().equals("size")) {
+                // if the command is "size" (case-insensitive), get and display the size
+                lastOperation[0] = "GET SIZE"; // update last operation
+                lastOperation[1] = String.format("(%d)", size);
+                System.out.print(size);
+            } else if(command.toLowerCase().equals("depth")) {
+                // if the command is "size" (case-insensitive), get and display the size
+                lastOperation[0] = "GET DEPTH"; // update last operation
+                lastOperation[1] = String.format("(%d)", depth);
+                System.out.print(depth);
             }
-        } else if(command.toLowerCase().equals("clear")) {
-            // if the command is "clear" (case-insensitive), clear the tree
-            clear();
-            lastOperation[0] = "CLEAR TREE"; // update last operation
-            lastOperation[1] = "";
-        } else if(command.toLowerCase().equals("size")) {
-            // if the command is "size" (case-insensitive), get and display the size
-            lastOperation[0] = "GET SIZE"; // update last operation
-            lastOperation[1] = String.format("(%d)", size);
-            System.out.print(size);
         }
+        
     }
 
     // actual printing of the tree
-    void print() {
+    public void print() {
         repr = "";
         if(size == 0) { // if the tree is empty, just show that the tree is empty
             repr = String.format(WHITE_HL, "(empty tree)") + "\n";
@@ -417,13 +468,12 @@ class BinarySearchTree {
         System.out.print(repr);
         if(size != 0) {
             line();
-            System.out.println("PREORDER TRAVERSAL:");
+            printArrayRepr();
+            line();
             preorder();
             line();
-            System.out.println("INORDER TRAVERSAL:");
             inorder();
             line();
-            System.out.println("POSTORDER TRAVERSAL:");
             postorder();
         }
     }
@@ -487,7 +537,7 @@ public class carodc3_31DS_L5 {
                 + ", or "
                 + String.format(RED_HL, "exit")
                 );
-            System.out.print("Enter command: " + ANSI_RED); // prompt input and display the input in red
+            System.out.print("Enter commands (separated by spaces): " + ANSI_RED); // prompt input and display the input in red
             String h = inp.next(); // take input
             // if the input is 'exit' (case insensitive), exit the program
             if (h.toLowerCase().equals("exit")) { break; 
