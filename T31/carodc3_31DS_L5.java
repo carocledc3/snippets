@@ -2,7 +2,7 @@
 // UNIVERSITY OF THE CORDILLERAS, CITCS-1F
 // CC4/DATA STRUCTURES AND ALGORITHMS
 // [31DS-L5] Laboratory Activity 5: Binary Trees
-// 9 March 2025
+// 12 March 2025
 
 // BINARY SEARCH TREE Representation
 // - Accept integer input from the user
@@ -16,6 +16,7 @@
 // comments by yours truly :3
 
 // imports...
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -67,15 +68,21 @@ class BinarySearchTree {
     final static void line() {
         System.out.println("---------------------------------------------------------------------");
     }
+    final static void doubleLine() {
+        System.out.println("=====================================================================");
+    }
 
+    // attributes
     private Node root; // every tree is defined by its root
     private int selected; // which node is selected (for highlighting in insert & search operations)
-    private int size = 0; // number of nodes in the tree
+    public int size = 0; // number of nodes in the tree
     private int lastIndex = 0;
     private int depth = 0;
     private int[] arrayRepr;
-    private String indicesRepr = ""; // representation of indices and elements for 1D traversals
-    private String elementsRepr = "";
+    private String traversalRepr = "";
+    private ArrayList<String> indicesRepr = new ArrayList<String>(); // representation of indices and elements for 1D traversals
+    private ArrayList<String> elementsRepr = new ArrayList<String>();
+    private String arrayReprAsString;
     private String repr = ""; // representation for tree visualisation
     public String[] lastOperation = {String.format(WHITE_HL, "(none)"), ""}; // last operation done on the tree
 
@@ -208,16 +215,17 @@ class BinarySearchTree {
 
     // Preorder traversal and printing. is called PRE-order because it goes root -> left -> right, with the root BEFORE the instructions to go left and right
     private void preorder() {
-        elementsRepr = ""; // initialise element text
+        traversalRepr = ""; // initialise element text
         preorderRec(root); // run recursive pre-order traversal function...
-        System.out.println("PREORDER TRAVERSAL: " + String.format("[%s]", elementsRepr)); // and print the results
+        traversalRepr = traversalRepr.substring(0, traversalRepr.length() - 6) + ANSI_RESET;
+        System.out.println("PREORDER TRAVERSAL: " + String.format("[%s]", traversalRepr)); // and print the results
     }
 
     // recursive pre-order traversal function
     private void preorderRec(Node root) {
         if (root != null) {
             // read root first...
-            elementsRepr += root.index == lastIndex ? String.format(RED_HL, root.key) : String.format(RED_HL, root.key + ", ");
+            traversalRepr += String.format(RED_HL, root.key + ", ");
             preorderRec(root.left); // then go left
             preorderRec(root.right); // then go right
         }
@@ -226,9 +234,10 @@ class BinarySearchTree {
     // Inorder traversal and printing. is called IN-order because it goes left -> root -> right, with the root IN BETWEEN the instructions to go left and right
     private  void inorder() {
         // initialise indices and elements row labels
-        elementsRepr = ""; // initialise element text
+        traversalRepr = ""; // initialise element text
         inorderRec(root); // run recursive post-order traversal function...
-        System.out.println("INORDER TRAVERSAL: " + String.format("[%s]", elementsRepr)); // and print the results
+        traversalRepr = traversalRepr.substring(0, traversalRepr.length() - 6) + ANSI_RESET;
+        System.out.println("INORDER TRAVERSAL: " + String.format("[%s]", traversalRepr)); // and print the results
     }
 
     // recursive in-order traversal function
@@ -236,7 +245,7 @@ class BinarySearchTree {
         if (root != null) {
             inorderRec(root.left); // go left first...
             // read root...
-            elementsRepr += root.index == lastIndex ? String.format(RED_HL, root.key) : String.format(RED_HL, root.key + ", ");
+            traversalRepr += String.format(RED_HL, root.key + ", ");
             // then go right
             inorderRec(root.right);
         }
@@ -244,9 +253,9 @@ class BinarySearchTree {
 
     // Postorder traversal and printing. is called POST-order because it goes left -> right -> root , with the root AFTER the instructions to go left and right
     private void postorder() {
-        elementsRepr = ""; // initialise element text
+        traversalRepr = ""; // initialise element text
         postorderRec(root); // run recursive post-order traversal function...
-        System.out.println("POSTORDER TRAVERSAL: " + String.format("[%s]", elementsRepr)); // and print the results
+        System.out.println("POSTORDER TRAVERSAL: " + String.format("[%s]", traversalRepr)); // and print the results
     }
 
     // recursive post-order traversal function
@@ -255,7 +264,7 @@ class BinarySearchTree {
             postorderRec(root.left); // go left first...
             postorderRec(root.right); // then go right
             // then read root
-            elementsRepr += root.index == 0 ? String.format(RED_HL, root.key) : String.format(RED_HL, root.key + ", ");
+            traversalRepr += root.index == 0 ? String.format(RED_HL, root.key) : String.format(RED_HL, root.key + ", ");
         }
     }
 
@@ -325,7 +334,7 @@ class BinarySearchTree {
     }
 
     // method to clear the whole tree. sets the root to null and the size to zero
-    private void clear() { root = null; size = 0; updateIndices();}
+    private void clear() { root = null; size = 0; lastIndex = 0; updateIndices();}
 
     // recursive method to print the whole tree
     private void printTree(Node root, Node previous, String offset, int depth) {
@@ -399,17 +408,58 @@ class BinarySearchTree {
 
     // method to print the array representation
     private void printArrayRepr() {
+
         int[] arr = arrayRepr; // making a copy of the current arrayRepr just to be safe
-        // initialise row headers...
-        indicesRepr = String.format("%-10s", "Indices");
-        elementsRepr = String.format(RED_HL, String.format("%-10s", "Elements"));
-        // and fill the representations with the indices and strings
-        for(int k = 0; k < arr.length; k++) {
-            indicesRepr += String.format(WHITE_HL, "@" + String.format("%-5s", k));
-            elementsRepr += String.format(RED_HL, String.format("%-6s", String.format("[%s]", arr[k])));
+
+        String tempDeclaration = "";
+        String declaration = String.format("%nDECLARATION: int BST%s = ", String.format(RED_HL, "[" + arr.length + "]"));
+        
+        for (int i = 0; i < arr.length; i++) {
+            tempDeclaration += arr[i] + ", ";
         }
-        // do the actual printing
-        System.out.println("1D ARRAY REPRESENTATION: \n" + indicesRepr + "\n" + elementsRepr);
+
+        declaration += String.format("[%s]", tempDeclaration).replace(", ]", "]");
+
+        indicesRepr = new ArrayList<String>();
+        elementsRepr = new ArrayList<String>();
+
+        // change this variable to chnage the number of elements per row
+        int ROWSIZE = 8;
+
+        for(int k = 0; k < arr.length; k++) {
+            // initialise row headers... make sure that these only occur every 8 elements
+            if(k % ROWSIZE == 0) {
+                indicesRepr.add(String.format("%-10s", "\nIndex"));
+                elementsRepr.add(String.format(RED_HL, String.format("%-10s", "\nElement")));
+            }
+            // and fill the representations with the indices and strings
+            indicesRepr.add(String.format(WHITE_HL, "| " + String.format("%-4s", k)));
+            elementsRepr.add(String.format(RED_HL, "| " + String.format("%-4s", arr[k])));
+        }
+
+        // initialise 1d array representation
+        arrayReprAsString = "";
+
+        // row-wise approach to make sure terminal wrapping doesnt ruin things. default is 8 elements per row
+        for (int k = 0; k <= arr.length; k++) {
+            // temporary strings for each of the rows. resets each iteration
+            String indTemp = "";
+            String elTemp = "";
+            // per-row loop
+            for (int l = 0; l < (ROWSIZE + 1); l++) {
+                // stop everything when it reaches the last part of the string arraylist
+                if((k * (ROWSIZE + 1)) + l >= indicesRepr.size()) { break; }
+
+                // add to the rows
+                indTemp += indicesRepr.get((k * (ROWSIZE + 1)) + l);
+                elTemp += elementsRepr.get((k * (ROWSIZE + 1)) + l);
+            }
+            // add each row to the final representation
+            arrayReprAsString += indTemp + elTemp;
+        }
+        
+        // print that shit
+        System.out.println("1D ARRAY REPRESENTATION:" + declaration + "\n" + arrayReprAsString);
     }
 
     // Integer.parseInt with an exception silencer. invalid values return 0
@@ -446,9 +496,9 @@ class BinarySearchTree {
                 lastOperation[0] = "GET SIZE"; // update last operation
                 lastOperation[1] = String.format("(%d)", size);
                 System.out.print(size);
-            } else if(command.toLowerCase().equals("depth")) {
+            } else if(command.toLowerCase().equals("depth") || command.toLowerCase().equals("height")) {
                 // if the command is "size" (case-insensitive), get and display the size
-                lastOperation[0] = "GET DEPTH"; // update last operation
+                lastOperation[0] = "GET HEIGHT"; // update last operation
                 lastOperation[1] = String.format("(%d)", depth);
                 System.out.print(depth);
             }
@@ -467,9 +517,9 @@ class BinarySearchTree {
         }
         System.out.print(repr);
         if(size != 0) {
-            line();
+            doubleLine();
             printArrayRepr();
-            line();
+            doubleLine();
             preorder();
             line();
             inorder();
