@@ -16,7 +16,6 @@
 // comments by yours truly :3
 
 // imports...
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
@@ -80,8 +79,8 @@ class BinarySearchTree {
     private int depth = 0;
     private int[] arrayRepr;
     private String traversalRepr = "";
-    private ArrayList<String> indicesRepr = new ArrayList<String>(); // representation of indices and elements for 1D traversals
-    private ArrayList<String> elementsRepr = new ArrayList<String>();
+    private String indicesRepr = ""; // representation of indices and elements for 1D traversals
+    private String elementsRepr = "";
     private String arrayReprAsString;
     private String repr = ""; // representation for tree visualisation
     public String[] lastOperation = {String.format(WHITE_HL, "(none)"), ""}; // last operation done on the tree
@@ -411,6 +410,7 @@ class BinarySearchTree {
 
         int[] arr = arrayRepr; // making a copy of the current arrayRepr just to be safe
 
+        indicesRepr = elementsRepr = "";
         String tempDeclaration = "";
         String declaration = String.format("%nDECLARATION: int BST%s = ", String.format(RED_HL, "[" + arr.length + "]"));
         
@@ -420,43 +420,17 @@ class BinarySearchTree {
 
         declaration += String.format("[%s]", tempDeclaration).replace(", ]", "]");
 
-        indicesRepr = new ArrayList<String>();
-        elementsRepr = new ArrayList<String>();
-
-        // change this variable to chnage the number of elements per row
-        int ROWSIZE = 8;
+        indicesRepr += (String.format("%-10s", "\nIndex"));
+            elementsRepr += (String.format(RED_HL, String.format("%-10s", "\nElement")));
 
         for(int k = 0; k < arr.length; k++) {
-            // initialise row headers... make sure that these only occur every 8 elements
-            if(k % ROWSIZE == 0) {
-                indicesRepr.add(String.format("%-10s", "\nIndex"));
-                elementsRepr.add(String.format(RED_HL, String.format("%-10s", "\nElement")));
-            }
             // and fill the representations with the indices and strings
-            indicesRepr.add(String.format(WHITE_HL, "| " + String.format("%-4s", k)));
-            elementsRepr.add(String.format(RED_HL, "| " + String.format("%-4s", arr[k])));
+            indicesRepr += (String.format(WHITE_HL, "| " + String.format("%-4s", k)));
+            elementsRepr += (String.format(RED_HL, "| " + String.format("%-4s", arr[k])));
         }
 
         // initialise 1d array representation
-        arrayReprAsString = "";
-
-        // row-wise approach to make sure terminal wrapping doesnt ruin things. default is 8 elements per row
-        for (int k = 0; k <= arr.length; k++) {
-            // temporary strings for each of the rows. resets each iteration
-            String indTemp = "";
-            String elTemp = "";
-            // per-row loop
-            for (int l = 0; l < (ROWSIZE + 1); l++) {
-                // stop everything when it reaches the last part of the string arraylist
-                if((k * (ROWSIZE + 1)) + l >= indicesRepr.size()) { break; }
-
-                // add to the rows
-                indTemp += indicesRepr.get((k * (ROWSIZE + 1)) + l);
-                elTemp += elementsRepr.get((k * (ROWSIZE + 1)) + l);
-            }
-            // add each row to the final representation
-            arrayReprAsString += indTemp + elTemp;
-        }
+        arrayReprAsString = indicesRepr + elementsRepr;
         
         // print that shit
         System.out.println("1D ARRAY REPRESENTATION:" + declaration + "\n" + arrayReprAsString);
