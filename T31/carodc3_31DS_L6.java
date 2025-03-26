@@ -121,6 +121,7 @@ class AVLTree {
     }
 
     private Node removeRecursive(Node node, int value) {
+
         if (node == null) {
             return null;
         }
@@ -131,9 +132,9 @@ class AVLTree {
             node.right = removeRecursive(node.right, value);
         } else {
             if (node.left == null) {
-                return node.right;
+                size -=1; return node.right;
             } else if (node.right == null) {
-                return node.left;
+                size -=1; return node.left;
             }
 
             // Replace the value being removed with the smallest value on the right
