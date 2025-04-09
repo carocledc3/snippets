@@ -1,8 +1,38 @@
-package langaoen.jancess.kruskalsalgorithm;
+// package langaoen.jancess.kruskalsalgorithm;
+// ALL CREDIT TO J. LANGAOEN
 
 import java.util.*;
 
 public class KruskalsAlgorithm {
+
+    static class HL {
+        private static final String ANSI_RESET = "\u001B[0m";
+        private static final String ANSI_RED = "\u001B[31m";
+        private static final String ANSI_WHITE = "\u001B[37m";
+        public static final String ANSI_PINK = "\u001B[35m";
+        public static String PINK(String s) { return ANSI_PINK + s + ANSI_RESET; } 
+        public static String RED(String s) { return ANSI_RED + s + ANSI_RESET; } 
+        public static String WHITE(String s) { return ANSI_WHITE + s + ANSI_RESET; } 
+        final static void line() {
+            System.out.println("---------------------------------------------------------------------");
+        }
+        final static void doubleLine() {
+            System.out.println("=====================================================================");
+        }
+        @SuppressWarnings({ "deprecation", "UseSpecificCatch" })
+    public final static void clearConsole() { // method to clear console, thank you https://stackoverflow.com/questions/2979383/how-to-clear-the-console-using-java
+        try {
+            final String os = System.getProperty("os.name");
+            if (os.contains("Windows")) {
+                Runtime.getRuntime().exec("cls");
+            } else {
+                System.out.println("\u001b[2J" + "\u001b[H");
+            }
+        } catch (Exception E) {
+            // je m'en câlisse
+        }
+    }
+    }
 
     static class Edge implements Comparable<Edge> {
         String src, dest;
@@ -52,18 +82,23 @@ public class KruskalsAlgorithm {
         boolean repeat;
 
         do {
+            HL.clearConsole();
             Set<String> verticesSet = new HashSet<>();
             List<Edge> edges = new ArrayList<>();
 
-            System.out.println("Enter edges in format (A, B, 4), separated by space:");
+            HL.doubleLine();
+            System.out.println("KRUSKAL'S ALGORITHM SIMULATOR\n");
+            HL.doubleLine();
+            System.out.print("Enter edges in format " + HL.RED("(A,B,W)") + ", (where w is the weight), separated by space: \n > "  + HL.ANSI_RED);
             String input = sc.nextLine();
+            input = input.replace(", ", ",");
             String[] edgeInputs = input.split("\\s+");
 
             for (String edgeStr : edgeInputs) {
                 edgeStr = edgeStr.replaceAll("[()]", ""); // Remove parentheses
                 String[] parts = edgeStr.split(",");
                 if (parts.length != 3) {
-                    System.out.println("Invalid edge format: " + edgeStr);
+                    System.out.println("[!] Invalid edge format: " + edgeStr);
                     continue;
                 }
                 String src = parts[0].trim();
@@ -128,8 +163,9 @@ public class KruskalsAlgorithm {
                     e++;
                 }
             }
-            
-            System.out.println("\nGIVEN");
+            System.out.print(HL.ANSI_RESET);
+            HL.doubleLine();
+            System.out.println(HL.RED("==[GIVEN]=="));
             System.out.println("Vertices in the graph:");
             for (String v : vertices) {
                 System.out.print(v + " ");
@@ -137,20 +173,25 @@ public class KruskalsAlgorithm {
             System.out.println("\n\nAdjacency Matrix of the Graph (Before Kruskal's Algorithm):");
             System.out.print("    "); // Adjust for row labels
             for (String v : vertices) {
-                System.out.printf("%-4s", v); // Ensure 4-character spacing
+                System.out.printf("%-4s", HL.RED(v)); // Ensure 4-character spacing
             }
             System.out.println();
 
             // Print each row of the adjacency matrix
             for (int r = 0; r < V; r++) {
-                System.out.printf("%-4s", vertices.get(r)); // Print row labels with spacing
+                System.out.print(HL.RED(String.format("%-4s", vertices.get(r)))); // Print row labels with spacing
                 for (int c = 0; c < V; c++) {
-                    System.out.printf("%-4d", adjMatrix[r][c]); // Print matrix values with spacing
+                    if(adjMatrix[r][c] > 0) {
+                        System.out.print(HL.PINK(String.format("%-4d", adjMatrix[r][c])));
+                    } else {
+                        System.out.printf("%-4d", adjMatrix[r][c]); // Print matrix values with spacing
+                    }
+                    
                 }
                 System.out.println();
             }
 
-            System.out.println("\n\nMINIMUM SPANNING TREE");
+            System.out.println(HL.RED("\n\n==[MINIMUM SPANNING TREE]=="));
             System.out.print("Edges in the Minimum Spanning Tree:\n");
             int minCost = 0;
             for (int idx = 0; idx < result.size(); idx++) {
@@ -175,24 +216,28 @@ public class KruskalsAlgorithm {
             System.out.println("\nAdjacency Matrix in MST (After Kruskal's Algorithm):");
             System.out.print("    ");
             for (String v : vertices) {
-                System.out.printf("%-4s", v);
+                System.out.printf("%-4s", HL.RED(v));
             }
             System.out.println();
 
             // Print each row of the MST adjacency matrix
             for (int r = 0; r < V; r++) {
-                System.out.printf("%-4s", vertices.get(r));
+                System.out.print(HL.RED(String.format("%-4s", vertices.get(r))));
                 for (int c = 0; c < V; c++) {
-                    System.out.printf("%-4d", mstMatrix[r][c]);
+                    if(mstMatrix[r][c] > 0) {
+                        System.out.print(HL.PINK(String.format("%-4d", mstMatrix[r][c])));
+                    } else {
+                        System.out.print(String.format("%-4d", mstMatrix[r][c])); // Print matrix values with spacing
+                    }
                 }
                 System.out.println();
             }
 
-            System.out.println("\nMinimum Cost: " + minCost);
+            System.out.println("\nMINIMUM COST: " + minCost);
 
             System.out.print("\nDo you want to try again? (yes/no): ");
             String again = sc.nextLine().trim().toLowerCase();
-            repeat = again.equals("yes");
+            repeat = again.startsWith("y");
 
         } while (repeat);
 
